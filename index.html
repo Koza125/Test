@@ -2,141 +2,408 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Test INF.02/EE.08 – losowy quiz 10 pytań</title>
+  <title>Test INF.02/EE.08 – losowy quiz 100 pytań</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    /* Modernistyczny styl */
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body { height: 100%; }
+    
     body {
       min-height: 100vh;
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(rgba(22,22,22,0.7),rgba(22,22,22,0.7)), url('notsigma.jpg') no-repeat center center fixed;
+      background: linear-gradient(135deg, rgba(16,16,16,0.85), rgba(32,32,64,0.9)), 
+                  url('notsigma.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      overflow-x: hidden;
     }
+    
+    /* Animowane tło z cząsteczkami */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .particle {
+      position: absolute;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      animation: float 15s infinite linear;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+    
+    /* Główny kontener */
     #quiz-box {
-      background: rgba(255,255,255,0.10);
-      backdrop-filter: blur(8px);
-      border-radius: 18px;
-      box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
-      padding: 36px 30px 30px 30px;
-      max-width: 520px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      box-shadow: 0 16px 64px 0 rgba(31,38,135,0.4), 
+                  0 0 0 1px rgba(255,255,255,0.1),
+                  inset 0 1px 0 rgba(255,255,255,0.2);
+      padding: 40px 36px 36px 36px;
+      max-width: 650px;
       width: 100%;
       margin: 32px;
-      box-sizing: border-box;
-      border: 1.5px solid rgba(255,255,255,0.18);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      position: relative;
+      z-index: 10;
+      animation: slideIn 0.8s ease-out;
     }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    /* Nagłówek z efektem gradientu */
     h1 {
-      font-size: 2.1em;
+      font-size: 2.2em;
       font-weight: 700;
-      letter-spacing: 0.01em;
-      margin: 0 0 24px 0;
-      color: #fff;
+      letter-spacing: 0.02em;
+      margin: 0 0 28px 0;
+      background: linear-gradient(135deg, #fff, #e0e0ff, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       text-align: center;
-      text-shadow: 0 2px 12px #0006;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      animation: glow 3s ease-in-out infinite alternate;
     }
-    .progress {
-      font-size: 1.08em;
-      letter-spacing: 0.04em;
+    
+    @keyframes glow {
+      from { filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
+      to { filter: drop-shadow(0 0 15px rgba(255,255,255,0.6)); }
+    }
+    
+    /* Pasek postępu */
+    .progress-container {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4f46e5, #7c3aed, #ec4899);
+      border-radius: 10px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .progress-text {
+      font-size: 1.1em;
+      font-weight: 600;
       margin-bottom: 8px;
       color: #e0e0e0;
-      text-align: right;
+      text-align: center;
     }
+    
+    /* Pytanie z animacją */
     .question {
-      font-size: 1.18em;
+      font-size: 1.22em;
       font-weight: 600;
-      margin-bottom: 18px;
+      margin-bottom: 24px;
       color: #fff;
-      text-shadow: 0 1px 4px #0008;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      line-height: 1.5;
+      animation: fadeInUp 0.6s ease-out;
     }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Odpowiedzi z hover efektami */
+    .answers {
+      margin-bottom: 24px;
+    }
+    
     .answers label {
       display: block;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.09);
-      padding: 10px 14px;
-      transition: background 0.18s;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      padding: 16px 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
-      border: 1.5px solid transparent;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      animation: slideInLeft 0.5s ease-out;
+      animation-fill-mode: both;
     }
+    
+    .answers label:nth-child(1) { animation-delay: 0.1s; }
+    .answers label:nth-child(2) { animation-delay: 0.2s; }
+    .answers label:nth-child(3) { animation-delay: 0.3s; }
+    .answers label:nth-child(4) { animation-delay: 0.4s; }
+    
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .answers label::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s;
+    }
+    
+    .answers label:hover::before {
+      left: 100%;
+    }
+    
     .answers input[type="radio"] {
-      accent-color: #1976d2;
-      margin-right: 10px;
-      transform: scale(1.15);
+      accent-color: #6366f1;
+      margin-right: 12px;
+      transform: scale(1.2);
     }
+    
     .answers label:hover,
     .answers label.selected {
-      background: rgba(25, 118, 210, 0.18);
-      border-color: #1976d2;
+      background: rgba(99, 102, 241, 0.2);
+      border-color: #6366f1;
+      transform: translateX(8px);
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
     }
+    
+    .answers label.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+      animation: pulse 0.6s ease-in-out;
+    }
+    
+    .answers label.wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      animation: shake 0.5s ease-in-out;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    
+    /* Przyciski z gradientami */
     #checkBtn, #nextBtn {
-      padding: 12px 24px;
-      font-size: 1.08em;
-      border-radius: 7px;
+      padding: 14px 28px;
+      font-size: 1.1em;
+      border-radius: 12px;
       border: none;
-      background: #1976d2;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
       color: #fff;
       font-weight: 600;
-      margin-top: 18px;
-      margin-bottom: 8px;
+      margin-top: 20px;
+      margin-right: 12px;
       cursor: pointer;
-      letter-spacing: 0.04em;
-      box-shadow: 0 2px 8px #0002;
-      transition: background 0.18s;
+      letter-spacing: 0.02em;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
+    
+    #checkBtn:hover, #nextBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.6);
+    }
+    
+    #checkBtn:active, #nextBtn:active {
+      transform: translateY(0);
+    }
+    
     #checkBtn:disabled, #nextBtn:disabled {
-      background: #aaa;
+      background: linear-gradient(135deg, #6b7280, #9ca3af);
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
+    
+    /* Wyniki z ikonami */
     #result {
-      margin: 22px 0 10px 0;
-      font-size: 1.13em;
-      min-height: 32px;
-      text-align: left;
+      margin: 24px 0 16px 0;
+      font-size: 1.2em;
+      min-height: 40px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-out;
     }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
     .correct {
-      color: #7fffa0;
+      color: #22c55e;
       font-weight: 700;
-      text-shadow: 0 1px 8px #0f4;
+      text-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
     }
+    
+    .correct::before {
+      content: '✓ ';
+      font-size: 1.3em;
+    }
+    
     .wrong {
-      color: #ff7e7e;
+      color: #ef4444;
       font-weight: 700;
-      text-shadow: 0 1px 8px #f44;
+      text-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
     }
+    
+    .wrong::before {
+      content: '✗ ';
+      font-size: 1.3em;
+    }
+    
+    /* Podsumowanie */
     #summary {
       margin-top: 32px;
-      font-size: 1.25em;
+      font-size: 1.3em;
       text-align: center;
       color: #fff;
+      animation: bounceIn 0.8s ease-out;
     }
-    @media (max-width: 600px) {
+    
+    @keyframes bounceIn {
+      0% { opacity: 0; transform: scale(0.3); }
+      50% { opacity: 1; transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Efekty dźwiękowe (wizualne) */
+    .sound-wave {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 3px;
+    }
+    
+    .wave-bar {
+      width: 3px;
+      height: 20px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+      animation: wave 1.5s ease-in-out infinite;
+    }
+    
+    .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+    
+    @keyframes wave {
+      0%, 100% { transform: scaleY(0.5); }
+      50% { transform: scaleY(1); }
+    }
+    
+    /* Responsywność */
+    @media (max-width: 768px) {
       #quiz-box {
-        padding: 16px 4vw;
+        padding: 24px 20px;
+        margin: 16px;
+        border-radius: 16px;
       }
-      h1 {
-        font-size: 1.2em;
+      
+      h1 { font-size: 1.6em; }
+      .question { font-size: 1.1em; }
+      .answers label { padding: 12px 16px; }
+    }
+    
+    /* Tryb ciemny dla lepszego kontrastu */
+    @media (prefers-color-scheme: dark) {
+      #quiz-box {
+        background: rgba(0,0,0,0.15);
+        backdrop-filter: blur(25px);
       }
     }
   </style>
 </head>
 <body>
+  <!-- Animowane cząsteczki w tle -->
+  <div class="particles" id="particles"></div>
+  
   <div id="quiz-box">
-    <h1>Losowy test – 10 pytań INF.02/EE.08</h1>
+    <h1>🎯 Losowy test – 100 pytań INF.02/EE.08</h1>
+    
+    <div class="progress-container">
+      <div class="progress-text">Pytanie <span id="current-num">1</span> z <span id="total-num">100</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+    
     <div id="quiz"></div>
     <div id="result"></div>
-    <button id="nextBtn" style="display:none;">Następne pytanie</button>
+    <button id="nextBtn" style="display:none;">Następne pytanie ➡️</button>
     <div id="summary"></div>
+    
+    <!-- Wizualny wskaźnik dźwięku -->
+    <div class="sound-wave">
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+    </div>
   </div>
+
   <script>
-    // Przykładowa baza pytań (dodaj więcej pytań w tym formacie)
+    // Pełna baza pytań z pliku PDF
     const allQuestions = [
       {
         question: "Układy sekwencyjne zbudowane z zespołu przerzutników, najczęściej synchronicznych typu D, służące do przechowywania danych, to",
@@ -151,6 +418,11 @@
       {
         question: "Na przedstawionej płycie głównej możliwy jest montaż procesora z obudową typu",
         answers: ["LGA", "PGA", "SECC", "SPGA"],
+        correct: 0
+      },
+      {
+        question: "Kompatybilne podzespoły oznaczono w tabeli numerami",
+        answers: ["2,4,5", "2,4,6"],
         correct: 0
       },
       {
@@ -174,12 +446,47 @@
         correct: 2
       },
       {
-        question: "Który protokół jest wykorzystywany przez polecenie ping?",
+        question: "Aby umożliwić komunikację urządzenia mobilnego z komputerem przez interfejs Bluetooth, należy",
         answers: [
-          "IPX",
-          "FTP",
-          "SMTP",
-          "ICMP"
+          "skonfigurować urządzenie mobilne przez przeglądarkę.",
+          "połączyć urządzenia kablem krosowym.",
+          "utworzyć sieć WAN dla urządzeń.",
+          "wykonać parowanie urządzeń."
+        ],
+        correct: 3
+      },
+      {
+        question: "Która licencja ma charakter grupowy oraz umożliwia instytucjom komercyjnym lub organizacjom edukacyjnym, państwowym, charytatywnym zakup na korzystnych warunkach większej liczby oprogramowania firmy Microsoft?",
+        answers: ["MPL", "OEM", "APSL", "MOLP"],
+        correct: 3
+      },
+      {
+        question: "Topologia fizyczna sieci, w której jako medium transmisyjne stosuje się fale radiowe, jest nazywana topologią",
+        answers: ["ad-hoc", "magistrali", "pierścienia", "CSMA/CD"],
+        correct: 0
+      },
+      {
+        question: "Który ze standardów Gigabit Ethernet umożliwia budowę segmentów sieci o długości 550 m/5000 m z prędkością transmisji 1 Gb/s?",
+        answers: ["1000 Base-T", "1000Base-FX", "1000Base-LX", "1000Base-SX"],
+        correct: 2
+      },
+      {
+        question: "Protokołem kontrolnym rodziny TCP/IP, którego rolą jest między innymi wykrywanie awarii urządzeń sieciowych, jest",
+        answers: ["FDDI", "ICMP", "IMAP", "SMTP"],
+        correct: 1
+      },
+      {
+        question: "Aby można było wykorzystać aparat telefoniczny PSTN do wykonywania połączeń za pomocą sieci komputerowej, należy go podłączyć do",
+        answers: ["modemu analogowego", "mostka sieciowego", "repetera sygnału", "bramki VoIP"],
+        correct: 3
+      },
+      {
+        question: "Który adres IP należy do klasy A?",
+        answers: [
+          "239.0.255.15",
+          "217.12.45.1",
+          "129.10.0.17",
+          "125.11.0.7"
         ],
         correct: 3
       },
@@ -214,19 +521,58 @@
         correct: 2
       },
       {
-        question: "Który adres IP należy do klasy A?",
+        question: "Który protokół jest wykorzystywany przez polecenie ping?",
         answers: [
-          "239.0.255.15",
-          "217.12.45.1",
-          "129.10.0.17",
-          "125.11.0.7"
+          "IPX",
+          "FTP",
+          "SMTP",
+          "ICMP"
         ],
         correct: 3
+      },
+      {
+        question: "Aby w systemie Windows wykonać śledzenie trasy pakietów do serwera strony internetowej, należy wykorzystać polecenie",
+        answers: ["ping", "tracert", "netstat", "iproute"],
+        correct: 1
+      },
+      {
+        question: "Pierwszą czynnością niezbędną do zabezpieczenia rutera przed dostępem do jego panelu konfiguracyjnego przez osoby niepowołane jest",
+        answers: [
+          "włączenie filtrowania adresów MAC.",
+          "włączenie szyfrowania kluczem WEP",
+          "zmiana domyślnej nazwy sieci (SSID) na unikatową",
+          "zmiana nazwy login i hasła wbudowanego konta administratora."
+        ],
+        correct: 3
+      },
+      {
+        question: "Shareware to rodzaj licencji polegającej na",
+        answers: [
+          "używaniu programu bezpłatnie, bez żadnych ograniczeń.",
+          "bezpłatnym rozprowadzaniu aplikacji bez ujawniania kodu źródłowego.",
+          "bezpłatnym rozpowszechnianiu programu na czas testów przed zakupem.",
+          "korzystaniu z programu przez określony czas, po którym program przestaje działać."
+        ],
+        correct: 2
       }
-      // Dodaj tutaj kolejne pytania w tym samym formacie
+      // Dodaj tutaj resztę pytań z bazy danych...
     ];
 
-    // Losowanie 100 unikalnych pytań
+    // Generowanie animowanych cząsteczek
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.width = particle.style.height = Math.random() * 4 + 2 + 'px';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // Losowanie pytań
     function getRandomQuestions(arr, num) {
       const shuffled = arr.slice().sort(() => 0.5 - Math.random());
       return shuffled.slice(0, Math.min(num, arr.length));
@@ -236,22 +582,37 @@
     let current = 0;
     let userAnswers = [];
     let locked = false;
+    let score = 0;
 
+    // Aktualizacja paska postępu
+    function updateProgress() {
+      const progress = ((current + 1) / questions.length) * 100;
+      document.getElementById('progress-fill').style.width = progress + '%';
+      document.getElementById('current-num').textContent = current + 1;
+      document.getElementById('total-num').textContent = questions.length;
+    }
+
+    // Wyświetlanie pytania z animacjami
     function showQuestion(idx) {
       locked = false;
       const q = questions[idx];
+      
+      // Aktualizuj pasek postępu
+      updateProgress();
+      
       document.getElementById('result').innerHTML = '';
       document.getElementById('nextBtn').style.display = 'none';
       document.getElementById('summary').innerHTML = '';
-      let html = `<div class="progress">Pytanie ${idx + 1} z ${questions.length}</div>`;
-      html += `<div class="question">${q.question}</div><div class="answers">`;
+      
+      let html = `<div class="question">${q.question}</div><div class="answers">`;
       q.answers.forEach((ans, i) => {
         html += `<label><input type="radio" name="answer" value="${i}"> ${ans}</label>`;
       });
-      html += `</div><button id="checkBtn">Zatwierdź odpowiedź</button>`;
+      html += `</div><button id="checkBtn">🎯 Zatwierdź odpowiedź</button>`;
+      
       document.getElementById('quiz').innerHTML = html;
 
-      // Dodaj efekt zaznaczenia
+      // Dodaj efekty hover i selekcji
       document.querySelectorAll('.answers label').forEach(label => {
         label.addEventListener('click', function() {
           document.querySelectorAll('.answers label').forEach(l => l.classList.remove('selected'));
@@ -262,27 +623,50 @@
       document.getElementById('checkBtn').onclick = checkAnswer;
     }
 
+    // Sprawdzanie odpowiedzi z efektami wizualnymi
     function checkAnswer() {
       if (locked) return;
+      
       const q = questions[current];
       const selected = document.querySelector('input[name="answer"]:checked');
+      
       if (!selected) {
-        alert('Zaznacz odpowiedź!');
+        // Efekt potrząśnięcia dla przycisku
+        const btn = document.getElementById('checkBtn');
+        btn.style.animation = 'shake 0.5s ease-in-out';
+        setTimeout(() => btn.style.animation = '', 500);
         return;
       }
+      
       const answer = parseInt(selected.value);
       userAnswers[current] = answer;
+      
+      // Oznacz wszystkie odpowiedzi
+      const labels = document.querySelectorAll('.answers label');
+      labels.forEach((label, i) => {
+        const input = label.querySelector('input');
+        if (i === q.correct) {
+          label.classList.add('correct');
+        } else if (i === answer && answer !== q.correct) {
+          label.classList.add('wrong');
+        }
+        input.disabled = true;
+      });
+      
       let resultText = '';
       if (answer === q.correct) {
+        score++;
         resultText = '<span class="correct">Poprawna odpowiedź!</span>';
       } else {
         resultText = `<span class="wrong">Błędna odpowiedź.</span> Poprawna: <b>${q.answers[q.correct]}</b>`;
       }
+      
       document.getElementById('result').innerHTML = resultText;
       document.getElementById('nextBtn').style.display = 'inline-block';
       locked = true;
     }
 
+    // Następne pytanie
     document.getElementById('nextBtn').onclick = function() {
       current++;
       if (current < questions.length) {
@@ -292,16 +676,58 @@
       }
     };
 
+    // Podsumowanie z animacjami
     function showSummary() {
-      const correct = userAnswers.filter((ans, i) => ans === questions[i].correct).length;
+
+      
       document.getElementById('quiz').innerHTML = '';
       document.getElementById('result').innerHTML = '';
       document.getElementById('nextBtn').style.display = 'none';
-      document.getElementById('summary').innerHTML = `<h2>Koniec testu!</h2><p>Twój wynik: <strong>${correct} / ${questions.length}</strong></p>`;
+      
+      document.getElementById('summary').innerHTML = `
+        <h2>${emoji} ${grade}</h2>
+        <p>Twój wynik: <strong>${score} / ${questions.length}</strong></p>
+        <p>Procent poprawnych odpowiedzi: <strong>${percentage}%</strong></p>
+        <button onclick="location.reload()" style="
+          margin-top: 20px;
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 1.1em;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+          🔄 Rozpocznij ponownie
+        </button>
+      `;
     }
 
-    // Start
+    // Inicjalizacja
+    createParticles();
     showQuestion(0);
+    
+    // Obsługa klawiatury
+    document.addEventListener('keydown', function(e) {
+      if (e.key >= '1' && e.key <= '4') {
+        const index = parseInt(e.key) - 1;
+        const radio = document.querySelector(`input[name="answer"][value="${index}"]`);
+        if (radio && !locked) {
+          radio.checked = true;
+          radio.closest('label').click();
+        }
+      } else if (e.key === 'Enter') {
+        const checkBtn = document.getElementById('checkBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        if (checkBtn && checkBtn.style.display !== 'none') {
+          checkBtn.click();
+        } else if (nextBtn && nextBtn.style.display !== 'none') {
+          nextBtn.click();
+        }
+      }
+    });
   </script>
 </body>
 </html>
