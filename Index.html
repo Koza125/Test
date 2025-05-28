@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Test INF.02/EE.08 – losowy quiz 10 pytań</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Modernistyczny styl */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(rgba(22,22,22,0.7),rgba(22,22,22,0.7)), url('olaf.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #quiz-box {
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(8px);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
+      padding: 36px 30px 30px 30px;
+      max-width: 520px;
+      width: 100%;
+      margin: 32px;
+      box-sizing: border-box;
+      border: 1.5px solid rgba(255,255,255,0.18);
+    }
+    h1 {
+      font-size: 2.1em;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      margin: 0 0 24px 0;
+      color: #fff;
+      text-align: center;
+      text-shadow: 0 2px 12px #0006;
+    }
+    .progress {
+      font-size: 1.08em;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      color: #e0e0e0;
+      text-align: right;
+    }
+    .question {
+      font-size: 1.18em;
+      font-weight: 600;
+      margin-bottom: 18px;
+      color: #fff;
+      text-shadow: 0 1px 4px #0008;
+    }
+    .answers label {
+      display: block;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.09);
+      padding: 10px 14px;
+      transition: background 0.18s;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+    }
+    .answers input[type="radio"] {
+      accent-color: #1976d2;
+      margin-right: 10px;
+      transform: scale(1.15);
+    }
+    .answers label:hover,
+    .answers label.selected {
+      background: rgba(25, 118, 210, 0.18);
+      border-color: #1976d2;
+    }
+    #checkBtn, #nextBtn {
+      padding: 12px 24px;
+      font-size: 1.08em;
+      border-radius: 7px;
+      border: none;
+      background: #1976d2;
+      color: #fff;
+      font-weight: 600;
+      margin-top: 18px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      box-shadow: 0 2px 8px #0002;
+      transition: background 0.18s;
+    }
+    #checkBtn:disabled, #nextBtn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    #result {
+      margin: 22px 0 10px 0;
+      font-size: 1.13em;
+      min-height: 32px;
+      text-align: left;
+    }
+    .correct {
+      color: #7fffa0;
+      font-weight: 700;
+      text-shadow: 0 1px 8px #0f4;
+    }
+    .wrong {
+      color: #ff7e7e;
+      font-weight: 700;
+      text-shadow: 0 1px 8px #f44;
+    }
+    #summary {
+      margin-top: 32px;
+      font-size: 1.25em;
+      text-align: center;
+      color: #fff;
+    }
+    @media (max-width: 600px) {
+      #quiz-box {
+        padding: 16px 4vw;
+      }
+      h1 {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-box">
+    <h1>Losowy test – 10 pytań INF.02/EE.08</h1>
+    <div id="quiz"></div>
+    <div id="result"></div>
+    <button id="nextBtn" style="display:none;">Następne pytanie</button>
+    <div id="summary"></div>
+  </div>
+  <script>
+    // Przykładowa baza pytań (dodaj więcej pytań w tym formacie)
+    const allQuestions = [
+      {
+        question: "Układy sekwencyjne zbudowane z zespołu przerzutników, najczęściej synchronicznych typu D, służące do przechowywania danych, to",
+        answers: ["bramki", "kodery", "rejestry", "dekodery"],
+        correct: 2
+      },
+      {
+        question: "Transformator impulsowy w przedstawionym zasilaczu oznaczono symbolem",
+        answers: ["A", "B", "C"],
+        correct: 2
+      },
+      {
+        question: "Na przedstawionej płycie głównej możliwy jest montaż procesora z obudową typu",
+        answers: ["LGA", "PGA", "SECC", "SPGA"],
+        correct: 0
+      },
+      {
+        question: "Przed rozpoczęciem modernizacji komputerów osobistych oraz serwerów, polegającej na dołożeniu nowych modułów pamięci RAM, należy sprawdzić",
+        answers: [
+          "model pamięci RAM, maksymalną pojemność i liczbę modułów obsługiwaną przez płytę główną.",
+          "pojemność i rodzaj interfejsu dysku twardego oraz rodzaj gniazda zainstalowanej pamięci RAM.",
+          "producenta pamięci RAM oraz interfejsy zewnętrzne zainstalowanej płyty głównej.",
+          "gniazdo interfejsu karty graficznej oraz moc zainstalowanego zasilacza."
+        ],
+        correct: 0
+      },
+      {
+        question: "Do aktualizacji systemów Linux można wykorzystać programy",
+        answers: [
+          "cron i mount",
+          "defrag i YaST",
+          "apt-get i zypper",
+          "aptitude i amaro"
+        ],
+        correct: 2
+      },
+      {
+        question: "Który protokół jest wykorzystywany przez polecenie ping?",
+        answers: [
+          "IPX",
+          "FTP",
+          "SMTP",
+          "ICMP"
+        ],
+        correct: 3
+      },
+      {
+        question: "Który port jest domyślny dla protokołu HTTPS?",
+        answers: [
+          "80",
+          "143",
+          "443",
+          "8080"
+        ],
+        correct: 2
+      },
+      {
+        question: "Który typ zabezpieczeń w sieci WiFi posiada najlepszy poziom zabezpieczeń?",
+        answers: [
+          "WEP",
+          "WPA",
+          "WPA2",
+          "NTFS"
+        ],
+        correct: 2
+      },
+      {
+        question: "Program fsck jest wykorzystywany w systemie Linux do",
+        answers: [
+          "wykrycia struktury sieci i diagnostyki przepustowości sieci lokalnej.",
+          "monitorowania parametrów pracy i wydajności podzespołów komputera.",
+          "dokonania oceny stanu systemu plików i wykrycia uszkodzonych sektorów.",
+          "przeprowadzenia testów wydajnościowych serwera WWW poprzez wysłanie dużej liczby żądań."
+        ],
+        correct: 2
+      },
+      {
+        question: "Który adres IP należy do klasy A?",
+        answers: [
+          "239.0.255.15",
+          "217.12.45.1",
+          "129.10.0.17",
+          "125.11.0.7"
+        ],
+        correct: 3
+      }
+      // Dodaj tutaj kolejne pytania w tym samym formacie
+    ];
+
+    // Losowanie 100 unikalnych pytań
+    function getRandomQuestions(arr, num) {
+      const shuffled = arr.slice().sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, Math.min(num, arr.length));
+    }
+
+    const questions = getRandomQuestions(allQuestions, 100);
+    let current = 0;
+    let userAnswers = [];
+    let locked = false;
+
+    function showQuestion(idx) {
+      locked = false;
+      const q = questions[idx];
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('nextBtn').style.display = 'none';
+      document.getElementById('summary').innerHTML = '';
+      let html = `<div class="progress">Pytanie ${idx + 1} z ${questions.length}</div>`;
+      html += `<div class="question">${q.question}</div><div class="answers">`;
+      q.answers.forEach((ans, i) => {
+        html += `<label><input type="radio" name="answer" value="${i}"> ${ans}</label>`;
+      });
+      html += `</div><button id="checkBtn">Zatwierdź odpowiedź</button>`;
+      document.getElementById('quiz').innerHTML = html;
+
+      // Dodaj efekt zaznaczenia
+      document.querySelectorAll('.answers label').forEach(label => {
+        label.addEventListener('click', function() {
+          document.querySelectorAll('.answers label').forEach(l => l.classList.remove('selected'));
+          this.classList.add('selected');
+        });
+      });
+
+      document.getElementById('checkBtn').onclick = checkAnswer;
+    }
+
+    function checkAnswer() {
+      if (locked) return;
+      const q = questions[current];
+      const selected = document.querySelector('input[name="answer"]:checked');
+      if (!selected) {
+        alert('Zaznacz odpowiedź!');
+        return;
+      }
+      const answer = parseInt(selected.value);
+      userAnswers[current] = answer;
+      let resultText = '';
+      if (answer === q.correct) {
+        resultText = '<span class="correct">Poprawna odpowiedź!</span>';
+      } else {
+        resultText = `<span class="wrong">Błędna odpowiedź.</span> Poprawna: <b>${q.answers[q.correct]}</b>`;
+      }
+      document.getElementById('result').innerHTML = resultText;
+      document.getElementById('nextBtn').style.display = 'inline-block';
+      locked = true;
+    }
+
+    document.getElementById('nextBtn').onclick = function() {
+      current++;
+      if (current < questions.length) {
+        showQuestion(current);
+      } else {
+        showSummary();
+      }
+    };
+
+    function showSummary() {
+      const correct = userAnswers.filter((ans, i) => ans === questions[i].correct).length;
+      document.getElementById('quiz').innerHTML = '';
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('nextBtn').style.display = 'none';
+      document.getElementById('summary').innerHTML = `<h2>Koniec testu!</h2><p>Twój wynik: <strong>${correct} / ${questions.length}</strong></p>`;
+    }
+
+    // Start
+    showQuestion(0);
+  </script>
+</body>
+</html>
